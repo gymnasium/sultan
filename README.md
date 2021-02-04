@@ -11,12 +11,19 @@ Some available and ready-to-use devstack images are going to help you running th
 ## Documentation
 An extensive documentation on the architecture and the toolkit commands can be found in the repo's wiki page [here](https://github.com/appsembler/sultan/wiki).
 
-## 1. Before you start
-Make sure you have your SSH key added into our GCP Appsembler Devstack (appsembler-devstack-30) project. You can check that at GCP [Compute Metadata](https://console.cloud.google.com/compute/metadata/sshKeys?project=appsembler-devstack-30).
-Make sure you have [GCloud command-line tools](https://cloud.google.com/sdk/docs/install) installed.
+## 1. Prerequisites
+* Make sure you have your SSH key added into our GCP Appsembler Devstack (appsembler-devstack-30) project. You can check that at GCP [Compute Metadata](https://console.cloud.google.com/compute/metadata/sshKeys?project=appsembler-devstack-30).
+* Make sure you have [GCloud command-line tools](https://cloud.google.com/sdk/docs/install) installed.
+* Python & Python Virtual Environments
+
+### 1.1 Hawthorn
+* Python 2.7.x virtual environment
+
  
 
 ## 2. Quick Start
+
+This assumes you've already set up an impage previously.  If you don't have a pre-built image, please skip to section 3. Working With Configurations
 
 ### 2.1. Clone and configure
 Follow the next steps to set up your Sultan devstack
@@ -60,27 +67,21 @@ your devstack instance (official docs [here](https://cloud.google.com/iam/docs/c
 docs [here](https://cloud.google.com/iam/docs/granting-roles-to-service-accounts#granting_access_to_a_service_account_for_a_resource)). 
 1. Grant the service account `roles/compute.instanceAdmin` role (See also 
 the [list of roles](https://cloud.google.com/sdk/gcloud/reference/iam/roles/list)).
-1. Download the service account on your machine.
+1. Download the service account JSON file to your machine.
 
 ### 3.2. Getting sultan configurations ready
 1. After downloading the service account, edit the value of `SERVICE_KEY_PATH` 
 to match its location. (Follow the official docs ([here](https://cloud.google.com/iam/docs/creating-managing-service-account-keys)) 
 to generate a key for your service account).
-1. Edit (uncomment, set) the following values in your configs file
+1. Edit (uncomment, set) the following values in your configs file to match your specific values
 
 ```shell
 ## File configs/.configs.$USER
 SSH_KEY="$(HOME)/.ssh/id_rsa"
 PROJECT_ID="appsembler-devstack-30"
-SERVICE_ACCOUNT_EMAIL=devstack@appsembler-devstack-30.iam.gserviceaccount.com
-SERVICE_KEY_PATH=/Users/matej/Work/Appsembler/appsembler-devstack-30-104c123267bf.json
+SERVICE_ACCOUNT_EMAIL=example@appsembler-devstack-30.iam.gserviceaccount.com
+SERVICE_KEY_PATH=/local/path/to/your/gcp/service/account/json/file/filename.json
 ```
-
-> **NOTE**
->
-> - This example has my values
-> - You should change the value `SERVICE_KEY_PATH` if you decided to copy and 
-> paste the configurations above.
 
 ### 3.3. Optional configurations
 
@@ -92,26 +93,22 @@ $ export PATH=$PATH:$(pwd)  # pwd should translate to /path/to/projects/sultan
 ```
 
 #### Enabling auto completion 
-To enable auto completion
+To enable auto completion, add the following to your ~/.bashrc or ~/.zshrc
 ```console
 $ source extras/sultan-completion.bash  # For bash shell
+```
+
+```console
 $ source extras/sultan-completion.zsh   # For zsh shell
 ```
 
-> **NOTE**
->
-> You can add the command above to your ~/.bashrc or ~/.zshrc
-
 #### Check the best zone for your machine
-This is in order to have as small latency to your machine and mounted dirs as 
-possible. You can check it here: http://www.gcping.com/ Following example will 
-be how I’ve set it up (the ZONE value) in Europe.
+* Visit (https://www.gcping.com/) to determine the best geograpically proximate zone to minimize latency. Please be aware sometimes this service will go down, so keep checking it. [View the full list](https://cloud.google.com/compute/docs/regions-zones).
 
-For minimum latency. You can set `ZONE` value to match the nearest GCP zone to 
-you.
+For minimum latency, set the `ZONE` value to match your nearest GCP zone.
 ```shell
 ## File configs/.configs.$USER
-ZONE=europe-west3-c
+ZONE=europe-west3-c ## 
 ```
 
 #### Debugging
@@ -141,26 +138,51 @@ DEVSTACK_RUN_COMMAND="HOST=tahoe dev.up"
 ## 4. Creating your first edX devstack instance
 
 ### 4.1. Setting up the devstack
-Simple as running
+
+#### From scratch
+To run the full setup from scratch, don't supply an `image` argument. 
+```console
+$ sultan instance setup
+```
+
+#### From an existing devstack image
+This command will spin an instance for you from an already created image.
 ```console
 $ IMAGE_NAME=devstack-juniper  # Or any other devstack image name
 $ sultan instance setup --image $IMAGE_NAME
 ```
 
-The previous command will spin an instance for you from an already created 
-image. However, if you prefer to run the full setup from scratch just don't
-supply an `image` argument. 
-
-```console
-$ sultan instance setup
-```
 
 Make yourself some coffee. Go for a jog. Recreate the Sistine Chapel painting.
 Actually, go and built the chapel first. Then do the painting. You’ll have 
 time. A full setup takes quite long. But, once it’s finished…
 
 
-### 4.2. Bring up devstack up
+#### Once it's finished, you're probably not finished...
+You may see a success message like `The devstack has been provisioned successfully!`.
+This is essentially meaningless, especially if it's preceeded by something like:
+```
+Run sultan instance provision to start provisioning your devstack.                                                                                                                         
+bash: line 1: cd: /home/your-username/workspace/devstack: No such file or directory
+Connection to xx.xx.xx.xx closed. ## IP address of your instance in GCP
+bash: line 1: cd: /home/your-username/workspace/devstack: No such file or directory
+Connection to xx.xx.xx.xx closed. ## IP address of your instance in GCP
+bash: line 1: cd: /home/your-username/workspace/devstack: No such file or directory
+Connection to xx.xx.xx.xx closed. ## IP address of your instance in GCP
+bash: line 1: cd: /home/your-username/workspace/devstack: No such file or directory
+Connection to xx.xx.xx.xx closed. ## IP address of your instance in GCP
+```
+To remedy this, try the following:
+```console
+$ sultan devstack deploy
+```
+
+Followed by:
+```console
+$ sultan devstack provision
+```
+
+### 4.2. Bring up devstack up (assuming it worked)
 To run the devstack
 ```console
 $ sultan devstack up
