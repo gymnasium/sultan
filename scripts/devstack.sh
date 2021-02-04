@@ -45,7 +45,7 @@ up()  {
   # Runs devstack servers.                                                    #
   #############################################################################
   make down
-	make dev.pull
+	make pull
 	make "$DEVSTACK_RUN_COMMAND"
 	success "The devstack is up and running."
 }
