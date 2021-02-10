@@ -17,9 +17,12 @@ An extensive documentation on the architecture and the toolkit commands can be f
 * Python & Python Virtual Environments
 
 ### 1.1 Hawthorn
-* Python 2.7.x virtual environment
+* Python 3.7.6 virtual environment
 
- 
+The following versions did not work properly:
+* 2.7.18
+* 3.7.9
+* 3.9.1
 
 ## 2. Quick Start
 
@@ -48,8 +51,8 @@ create your instance
 More about this later in [Working with configurations](#3-working-with-configurations)
 section.
 
-### 2.3. Create your first devstack
-Create an instance from a pre-packaged image
+### 2.3. Create your first devstack from an existing image
+Create an instance from a pre-packaged image. This assumes you've gone not only gone through the steps to configure and set up an instance previously, but saved that instance as an image as well.
 
 ```console
 $ sultan instance setup --image devstack-juniper
@@ -78,8 +81,8 @@ to generate a key for your service account).
 ```shell
 ## File configs/.configs.$USER
 SSH_KEY="$(HOME)/.ssh/id_rsa"
-PROJECT_ID="appsembler-devstack-30"
-SERVICE_ACCOUNT_EMAIL=example@appsembler-devstack-30.iam.gserviceaccount.com
+PROJECT_ID="your-project-id"
+SERVICE_ACCOUNT_EMAIL=example@some-string.iam.gserviceaccount.com
 SERVICE_KEY_PATH=/local/path/to/your/gcp/service/account/json/file/filename.json
 ```
 
@@ -181,6 +184,8 @@ Followed by:
 ```console
 $ sultan devstack provision
 ```
+
+Keep an eye on the logs, and you may see 
 
 ### 4.2. Bring up devstack up (assuming it worked)
 To run the devstack
@@ -310,7 +315,7 @@ that only identifies your IP. Probably your IP happened to change (after a
 network disconnection for example). Here’s the remedy:
 
 - If you didn’t already, do the `sultan instance start`
-- Try reaching it with `sultan instnace ping`
+- Try reaching it with `sultan instance ping`
 - if it cannot reach it, do the `sultan instance restrict` to adjust the firewall rule.
 
 I’m just gonna assume it worked and you self-high-fived.

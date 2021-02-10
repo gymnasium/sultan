@@ -17,7 +17,7 @@ ${BOLD}${GREEN}devstack${NORMAL}
 
   ${BOLD}COMMANDS:${NORMAL}
     up        Runs devstack servers.
-    stop      Stops and unmounts a devstack servers.
+    stop      Stops and unmounts devstack server(s).
     make      Performs a devstack make command on the GCP instance.
     unmount   Releases the devstack mount from your machine.
     mount     Mounts devstack files from your GCP instance onto your

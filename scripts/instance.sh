@@ -128,7 +128,7 @@ provision() {
   #############################################################################
   # Provisions the devstack on your instance.                                 #
   #############################################################################
-  $sultan devstack make destroy # cleanup any previous conditions
+  #$sultan devstack make destroy # cleanup any previous conditions
 	$sultan devstack make requirements
 	$sultan devstack make dev.clone
 	$sultan devstack make pull
