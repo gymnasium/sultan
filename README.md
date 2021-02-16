@@ -34,9 +34,14 @@ Follow the next steps to set up your Sultan devstack
 ```console
 $ git clone git@github.com:appsembler/sultan.git
 $ cd sultan
-$ sultan config init
+$ sultan config init  # Make sure you're in the correct python environment, this will install the required package immediatly one you run it.
 ## configs/.configs.username is created
 ```
+
+> **NOTE**
+>
+> All the generated files will exist in `$SULTAN_HOME`, you can change the value of this from you configurations file.
+
 
 ### 2.2. Required configurations
 The following configurations must be overridden in your recently-created config 
