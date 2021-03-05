@@ -27,6 +27,14 @@ DENY_FIREWALL=deny-$INSTANCE_NAME-webserver-access
 # (DON'T CHANGE) The name of the allow rule on GCP firewall.
 ALLOW_FIREWALL=allow-$INSTANCE_NAME-webserver-access
 
+# (DON'T CHANGE unless necessary) The list of ports to be exposed:
+# lms:18000,studio:18010, forum:44567, discovery:18381, ecommerce:18130,
+# credentials:18150, edx_notes_api:18120, frontend-app-publisher:18400,
+# gradebook:1994, registrar:18734, program-console:1976,
+# frontend-app-learning:2000, frontend-app-library-authoring:3001,
+# course-authoring:2001, xqueue:18040, amc:13000
+EXPOSED_PORTS=22,18000,18010,44567,13000
+
 # The size of the disk your instance is going to use in GB. We don't recommend it to be less than 50.
 DISK_SIZE=200
 
@@ -44,14 +52,23 @@ SULTAN_HOME=$HOME/.sultan
 INVENTORY_CONFIGS_DIR=$SULTAN_HOME/ansible/dynamic-inventory
 INVENTORY=$INVENTORY_CONFIGS_DIR/inventory.compute.gcp.yml
 
+# Short-lived compute instances. Preemptible VMs offer the same machine types
+# and options as regular compute instances and last for up to 24 hours.
+PREEMPTIBLE=false
+
+# The time the machine will be alive before a shutdown trigger gets fired.
+# We default it to 6 hours.
+ALIVE_TIME="$(expr 6 \* 60 \* 60)"
+
 # The mount location.
 MOUNT_DIR=$SULTAN_HOME/mnt/
 
 # (DON'T CHANGE) The hosts file location. You can change it for test purposes.
 HOSTS_FILE=/etc/hosts
 
-# A comma-separated list of hostnames you'd like to use.
-EDX_HOST_NAMES=edx.devstack.lms
+# A space-separated list of hostnames you would like to use to access the
+# remote machine.
+EDX_HOST_NAMES="edx.devstack.site tahoe.devstack.site edx.devstack.lms"
 
 # Determines whether to hide/show commands verbose output on the terminal
 DEBUG=false
@@ -114,7 +131,9 @@ PINK=$(tput setaf 9)
 
 COLS=$(tput cols)
 
-# Set the Sultan Python environment - if a virtualenv exists, use that, otherwise use the global default
-PYENV=$(pyenv local)
-PYTHV=$(which python)
-SULTAN_ENV=${PYENV:-PYTHV}
+SULTAN_ENV=$(which python)
+
+# Hack to deal with unwritable /etc/hosts files on Cloud Build
+# Do not enable this unless you understand exactly what it does,
+# why it is needed, and how it will break things in other environments
+ETC_HOSTS_HACK=false

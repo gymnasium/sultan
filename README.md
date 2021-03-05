@@ -93,6 +93,63 @@ SERVICE_KEY_PATH=/local/path/to/your/gcp/service/account/json/file/filename.json
 
 ### 3.3. Optional configurations
 
+#### Preemptible machine
+Preemptible VMs are highly affordable, short-lived compute instances suitable 
+for fault-tolerant workloads. They offer the same machine types and options as 
+regular compute instances and last for up to 24 hours, and can reduce your 
+Compute Engine costs by up to 80%!
+
+Sultan allows you to setup a preemptible machine, you can do that by setting
+the configuration variable `PREEMPTIBLE` to `true`. Just something to note 
+here, preemptible machines are not suitable for long provisioning work, we only 
+recommend using them with `sultan instance setup --image` command. If you 
+noticed a freeze in your machine's shell, it means that your machine got 
+interrupted, and you might have to restart the session again.
+
+#### Machine lifespan
+When you create a sultan instance, the instance will be configured to run for 
+a specific amount of time configured in `ALIVE_TIME` in the configurations 
+file. We sat the default lifespan to 6 hours, when your machine powers off
+you can start it again using 
+```
+$ sultan instance start
+```
+
+To stop the machine manually before the timeout use
+```shell
+$ sultan instance stop
+```
+
+#### Exposed ports
+For security reasons, Sultan firewall will restrict access to the ports in
+`EXPOSED_PORTS` in your .configs file. Here's the full list of the ports you
+might want to enable.
+
+> **NOTE**
+>
+> You need to run `sultan instance restrict` everytime you change the port.
+
+
+| Service                          | Port  | Role    |
+|----------------------------------|-------|---------|
+| `ssh`                            | 22    | Machine |
+| `lms`                            | 18000 | Default |
+| `studio`                         | 18010 | Default |
+| `forum`                          | 44567 | Default |
+| `amc`                            | 22    | Extra   |
+| `discovery`                      | 18381 | Default |
+| `ecommerce`                      | 18130 | Default |
+| `credentials`                    | 18150 | Default |
+| `edx_notes_api`                  | 18120 | Default |
+| `frontend-app-publisher`         | 18400 | Default |
+| `gradebook`                      | 1994  | Default |
+| `registrar`                      | 18734 | Extra   |
+| `program-console`                | 1976  | Extra   |
+| `frontend-app-learning`          | 2000  | Extra   |
+| `frontend-app-library-authoring` | 3001  | Extra   |
+| `course-authoring`               | 2001  | Extra   |
+| `xqueue`                         | 18040 | Extra   |
+
 #### Accessing `sultan` from any directory on your machine 
 If you want to access `sultan` command line from any directory, add this repo 
 dir to your `PATH`
@@ -221,37 +278,30 @@ $ curl -I edx.devstack.lms:18010  ## Curls your LMS site.
 
 Our Devstack automatically creates your initial site:
 
-| Property | Value               |
-|:---------|:--------------------|
-| LMS URL  | red.localhost:18000 |
-| Username | red                 |
-| Email    | red@example.com     |
-| Password | red                 |
-
-
-> **Hey, I cannot access red.localhost:18000!**
->
-> Are you using Chrome? I was too. For some godforsaken reason it doesn’t work for me there (other URLs that are not localhost do). But in Firefox it does!
+| Property  | Value           |
+|:----------|:----------------|
+| LMS Port  | 18000           |
+| Username  | red             |
+| Email     | red@example.com |
+| Password  | red             |
 
 
 Other information:
 
-| Property                              | Value                                         |
-|:--------------------------------------|:----------------------------------------------|
-| AMC URL (Django-served)               | http://tahoe.devstack.amc:29000               |
-| AMC Signup Wizard URL (Django-served) | http://tahoe.devstack.amc:29000/signup-wizard |
-| LMS admin username                    | edx                                           |
-| LMS admin password                    | edx                                           |
-| AMC admin username                    | amc                                           |
-| AMC admin password                    | amc                                           |
-| Studio URL                            | http://amc.devstack.cms:18010                 |
+| Property                 | Value                       |
+|:-------------------------|:----------------------------|
+| Studio Port              | 18010                       |
+| EDX admin username       | edx                         |
+| EDX admin password       | edx                         |
+| AMC Port (Django-served) | 29000                       |
+| AMC Signup Wizard URL    | <domain:29000>/signup-wizard |
+| AMC admin username       | amc                         |
+| AMC admin password       | amc                         |
+
 
 ### 4.3. Optionally create your own site
-During the config we have added a `test.localhost` entry. So if you create a 
-new site just set the site name to `test` and you’ll automatically be 
-good to go.
-
-To skip the wizard and to create your site from command line (Good as it doesn't require email)   
+You can skip AMC's create site wizard, and create your site from command line
+(Good as it doesn't require email verification)   
 
 ```console
 $ sultan devstack make lms-shell
@@ -382,26 +432,21 @@ again `sultan devstack mount`. Works like a charm.
 > But what I’ve found is that it works way way better with Visual Studio Code 
 > and its Code Remote Extensions.
 
-## 6. To conclude
-Please add more stuff to this doc as you discover helpful information. Let’s 
-all strive for a bright future where an engineer can follow a couple easy 
-steps here and BOOM it’s done.
-
-## 7. Environment variables
+## 6. Configurations variables
 We create a specific ignored .configs file for you when you ran `sultan config init`, 
-to debug the final environment variables values you can run
+to debug the interpreted values of your configs that sultan reads you can run
 ```console
 $ sultan config debug
 ```
 
-## 8. Tool help
+## 7. Tool help
 To check the commands documentation run
 ```console
 $ sultan -h
 $ sultan --help
 ```
 
-## 9. Errors
+## 8. Errors
 Errors are possible all the time. If an error's fired while executing commands 
 from this toolkit it is recommended to do a little bit more debugging.
 While this might be an issue with the tool, we just want you to make sure that 
@@ -422,7 +467,7 @@ TypeError: _clone() takes exactly 1 argument (3 given)
 ##### Instructions
 Omar: While I don’t know why this happening, I know how to fix it.
 
-Aparently devstack installs an incorrect `django-model-utils` package and it 
+Apparently, devstack installs an incorrect `django-model-utils` package that 
 breaks the LMS. Install a specific version of `jazzband/django-model-utils` so 
 the platform works:
 ```console
@@ -438,3 +483,8 @@ $ sultan devstack up
 ```
 
 That should fix the problem.
+
+## 9. To conclude
+Please add more stuff to this doc as you discover helpful information. Let’s 
+all strive for a bright future where an engineer can follow a couple easy 
+steps here and BOOM it’s done.

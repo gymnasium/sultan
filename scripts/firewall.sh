@@ -93,7 +93,7 @@ clean() {
   _delete_allow_firewall
   _delete_deny_firewall
 
-  success "Firewall rules has been cleaned from GCP"
+  success "Firewall rules have been cleaned from GCP"
 }
 
 _create_allow_firewall() {
@@ -107,13 +107,17 @@ _create_allow_firewall() {
     MY_PUBLIC_IP="0.0.0.0/0"
   fi
 
+    # Processing instance ports
+    RULES=$( echo "tcp:$EXPOSED_PORTS" | sed  -e 's/,/,tcp:/g')
+
 	message "Creating ALLOW firewall rule in gcp..." "$ALLOW_FIREWALL:$MY_PUBLIC_IP"
+	message "Restricting ports access..." "$EXPOSED_PORTS"
 	(gcloud compute firewall-rules create "$ALLOW_FIREWALL" \
 		--quiet \
 		--verbosity "$VERBOSITY" \
 		--action allow \
 		--direction ingress \
-		--rules tcp \
+		--rules "$RULES" \
 		--source-ranges "$MY_PUBLIC_IP" \
 		--priority 50 \
 		--target-tags="$INSTANCE_TAG"\
