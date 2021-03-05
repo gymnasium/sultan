@@ -102,7 +102,7 @@ create() {
   message "Creating your virtual machine on GCP..." "$INSTANCE_NAME"
 	gcloud compute instances create "$INSTANCE_NAME" \
 		--image-family=ubuntu-1804-lts \
-		--image-project=gce-uefi-images \
+		--image-project=ubuntu-os-cloud \
 		--boot-disk-size="$DISK_SIZE" \
 		--machine-type="$MACHINE_TYPE" \
 		--tags=devstack,http-server,"$INSTANCE_TAG" \
@@ -131,7 +131,8 @@ provision() {
   #############################################################################
   #$sultan devstack make destroy # cleanup any previous conditions
 	$sultan devstack make requirements
-	$sultan devstack make dev.clone
+  $sultan devstack make dev.checkout
+  $sultan devstack make dev.clone
 	$sultan devstack make pull
 	$sultan devstack make dev.provision
 
