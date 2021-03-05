@@ -46,6 +46,8 @@ up()  {
   #############################################################################
   make down
 	make pull
+  ## Copy JSON config file before starting?
+  docker cp ~/workspace/edx-env/lms.env.json edx.devstack.lms:/edx/app/edxapp/lms.env.json
 	make "$DEVSTACK_RUN_COMMAND"
 	success "The devstack is up and running."
 }
