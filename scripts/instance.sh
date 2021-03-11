@@ -143,7 +143,8 @@ deploy() {
     # shellcheck disable=SC1090
     ansible-playbook "$sultan_dir"/ansible/devstack.yml \
       -i "$INVENTORY" \
-      -e "home_dir=$HOME_DIR instance_name=$INSTANCE_NAME working_directory=$DEVSTACK_WORKSPACE git_repo_url=$DEVSTACK_REPO_URL openedx_release=$OPENEDX_RELEASE git_repo_branch=$DEVSTACK_REPO_BRANCH virtual_env_dir=$VIRTUAL_ENV" &> "$SHELL_OUTPUT"
+      -e "home_dir=$HOME_DIR instance_name=$INSTANCE_NAME working_directory=$DEVSTACK_WORKSPACE git_repo_url=$DEVSTACK_REPO_URL openedx_release=$OPENEDX_RELEASE git_repo_branch=$DEVSTACK_REPO_BRANCH virtual_env_dir=$VIRTUAL_ENV 
+      ssh_key=$SSH_KEY" &> "$SHELL_OUTPUT"
         success "Your virtual machine has been deployed successfully!"
         message "Run ${BOLD}${CYAN}sultan instance provision${NORMAL}${MAGENTA} to start provisioning your devstack."
 }
@@ -152,10 +153,11 @@ provision() {
   #############################################################################
   # Provisions the devstack on your instance.                                 #
   #############################################################################
-  #$sultan devstack make destroy # cleanup any previous conditions
+  $sultan devstack make destroy # cleanup any previous conditions
 	$sultan devstack make requirements
-  $sultan devstack make dev.checkout
   $sultan devstack make dev.clone
+  $sultan devstack make dev.checkout
+  $sultan devstack make dev.submodule
 	$sultan devstack make pull
 	$sultan devstack make dev.provision
 

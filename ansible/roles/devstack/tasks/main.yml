@@ -14,16 +14,32 @@
   become: no
   tags: [ devstack ]
 
+- name: Copy SSH keys to devstack
+  copy:
+    src: "{{ ssh_key }}"
+    dest: "{{ ssh_keys_dir }}"
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    mode: "0644"
+    remote_src: false
+  with_fileglob: "{{ ssh_key }}*"
+  become: true
+  register: copy_output
+  tags: [ devstack ]
+
+- debug: var=copy_output
+
 - name: Copy SSH config
   blockinfile:
     path: "{{ ssh_keys_dir }}/config"
     create: yes
     block: |
-      host github.com
+      host *github.com
        HostName github.com
-       User git
        ForwardAgent yes
+       AddKeysToAgent yes
        StrictHostKeyChecking no
+       IdentityFile {{ ssh_keys_dir }}/id_rsa
   become: no
   tags: [ devstack ]
 

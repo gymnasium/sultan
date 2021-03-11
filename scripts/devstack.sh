@@ -46,10 +46,12 @@ up()  {
   #############################################################################
   make down
 	make pull
-  ## Copy JSON config file before starting?
-  docker cp ~/workspace/edx-env/lms.env.json edx.devstack.lms:/edx/app/edxapp/lms.env.json
-	make "$DEVSTACK_RUN_COMMAND"
-	success "The devstack is up and running."
+	make "$DEVSTACK_RUN_COMMAND" &&
+  ## Copy JSON config file before starting & Restart LMS in hopes the changes got picked up.
+  ssh -tt devstack "
+    docker cp ~/workspace/edx-env/lms.env.json edx.devstack.lms:/edx/app/edxapp/lms.env.json"
+  make lms-static
+	success "The devstack is up and running and should be running the Gymnasium theme."
 }
 
 unmount() {
